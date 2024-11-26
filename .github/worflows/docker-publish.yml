@@ -1,4 +1,4 @@
-name: Build and Publish Docker Image
+name: Build, Scan, and Publish Docker Image
 
 on:
   push:
@@ -30,7 +30,17 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and push Docker image
+    - name: Build Docker image
       run: |
         docker build -t ghcr.io/Q230108/ue19-lab-05:latest .
+
+    - name: Scan Docker image for vulnerabilities
+      uses: aquasecurity/trivy-action@v0.3.0
+      with:
+        image: ghcr.io/Q230108/ue19-lab-05:latest
+        format: 'table'
+        exit-code: '1'  # Définit le code de sortie en cas de vulnérabilités (1 signifie échec si des vulnérabilités sont trouvées)
+
+    - name: Push Docker image
+      run: |
         docker push ghcr.io/Q230108/ue19-lab-05:latest
